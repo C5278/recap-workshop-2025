@@ -1,0 +1,44 @@
+[
+    {
+      "NotificationTypeKey": "rewards",
+      "NotificationTypeVersion": "1",
+      "Templates": [
+        {
+          "Language": "en",
+          "TemplatePublic": "Sales Order",
+          "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+          "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+          "TemplateLanguage": "mustache",
+          "Subtitle": "Customer rewards has been updated"
+        }
+      ]
+    },
+    {
+        "NotificationTypeKey": "inventory",
+        "NotificationTypeVersion": "1",
+        "Templates": [
+          {
+            "Language": "en",
+            "TemplatePublic": "Sales Order",
+            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+            "TemplateLanguage": "mustache",
+            "Subtitle": "Stock has been updated"
+          }
+        ]
+      },
+      {
+        "NotificationTypeKey": "test",
+        "NotificationTypeVersion": "1",
+        "Templates": [
+          {
+            "Language": "en",
+            "TemplatePublic": "Sales Order",
+            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+            "TemplateLanguage": "mustache",
+            "Subtitle": "Tested"
+          }
+        ]
+      }
+  ]
