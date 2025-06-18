@@ -1,25 +1,143 @@
-# Getting Started
+# Project Setup Guide
 
-Welcome to your new project.
+## Prerequisites
 
-It contains these folders and files, following our recommended project layout:
+Before proceeding, ensure you have access to the following SAP BTP services:
 
-File or Folder | Purpose
----------|----------
-`app/` | content for UI frontends goes here
-`db/` | your domain models and data go here
-`srv/` | your service models and code go here
-`package.json` | project metadata and configuration
-`readme.md` | this getting started guide
+- **SAP BTP HANA Cloud**
+- **SAP BTP Work Zone, Standard Edition**
 
+These services must be provisioned and configured in your SAP BTP subaccount.
 
-## Next Steps
+## Cloning the Repository in SAP Business Application Studio (BAS)
 
-- Open a new terminal and run `cds watch`
-- (in VS Code simply choose _**Terminal** > Run Task > cds watch_)
-- Start adding content, for example, a [db/schema.cds](db/schema.cds).
+Follow the steps below to clone the repository in SAP BAS:
 
+1. Open **SAP Business Application Studio** from your SAP BTP Cockpit.
 
-## Learn More
+2. Choose the appropriate **Dev Space** or create a new one (e.g., _Full Stack Cloud Application_).
 
-Learn more at https://cap.cloud.sap/docs/get-started/.
+3. Once the Dev Space is running, click **"Open"** to enter the workspace.
+
+4. Open a new terminal by clicking on **Terminal > New Terminal**.
+
+5. In the terminal, run the following command to clone the repository:
+
+   ```bash
+   git clone https://github.com/C5278/recap-workshop-2025.git
+   npm install
+   cds build
+   cds watch
+
+6. Add the **Submit Order** functionality:
+
+   6.1. In the `dev` branch, open the `srv/order-service.js` file and copy the handler:
+
+   ```javascript
+   this.on('submitOrder', async (req) => {
+         const { ID } = req.data;
+         await UPDATE(Orders).set({ status: 'SUBMITTED' }).where({ ID });
+         return { message: `Order ${ID} submitted successfully.` };
+       });
+      
+
+7. Copy the **Outbox** configuration from `package.json`:
+    ```json
+      "outbox": {
+        "kind": "persistent-outbox",
+        "maxAttempts": 20,
+        "chunkSize": 100,
+        "storeLastError": true,
+        "parallel": true
+      },
+      
+8. Copy the Inventory destination configuration from `package.json`:
+
+   8.1. In the `dev` branch, open the `package.json` file.
+
+   8.2. Locate the Inventory destination configuration under the `cds.requires` section. It typically looks like this:
+
+   ```json
+       "cds": {
+         "requires": {
+           "Inventory": {
+             "kind": "rest",
+             "credentials": {
+               "destination": "inventory-destination"
+             }
+           }
+         }
+       }
+   ```     
+
+   8.3. Copy the entire `Inventory` config.
+
+9. Copy the Rewards destination configuration from `package.json`:
+
+   9.1. In the `dev` branch, open the `package.json` file.
+
+   9.2. Locate the Rewards destination configuration under the `cds.requires` section. It typically looks like this:
+
+   ```json
+       "cds": {
+         "requires": {
+           "Rewards": {
+             "kind": "rest",
+             "credentials": {
+               "destination": "rewards-destination"
+             }
+           }
+         }
+       }
+       
+
+   9.3. Copy the entire `Rewards` configuration block.
+
+   9.4. Open `package.json` in your working branch and paste the `Rewards` configuration insid.
+
+10. Create the inventory folder and its service files to call the Inventory destination as in the `dev` branch:
+
+    10.1. In dev branch, locate the `inventory` folder and its service files (`inventory-service.cds`, `inventory-service.js`, etc.) in the project.
+
+    10.2. Copy the entire `inventory` folder along with its contents to your working branch (e.g., `main`).
+
+11. Create the rewards folder and its service files to call the Rewards destination as in the `dev` branch:
+
+    11.1. In dev branch, locate the `rewards` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
+
+    11.2. Copy the entire `rewards` folder along with its contents to your working branch (e.g., `main`).     
+
+12. Add **Notification configuration** to the project:
+
+    12.1. In the terminal, run the following command to add the notifications module to your CAP project:
+           
+    ```bash
+    cds add notifications            
+    ```
+    12.2. This command will automatically:
+
+    - Add necessary dependencies "@cap-js/notifications" (if missing).
+    - Add the following module definition (typically in `mta.yaml`) to enable notification content deployment during          deployment time:
+
+    ```yaml
+          - name: notification-content-deployment
+            type: nodejs
+            path: gen/srv
+            parameters:
+              no-route: true
+              no-start: true
+              memory: 256MB
+              disk-quota: 1GB
+              tasks:
+                - name: notification-content-deployment
+                  command: "node node_modules/@cap-js/notifications/lib/content-deployment.js"
+                  memory: 256MB
+                  disk-quota: 1GB
+              requires:
+                - name: salesorder-destination
+                - name: salesorder-connectivity
+                - name: salesorder-db
+
+13. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
+
+   
