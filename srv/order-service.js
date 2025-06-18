@@ -94,7 +94,7 @@ class OrderService extends cds.ApplicationService {
         this.on('submitOrder', async (req) => {
             const orderData = await SELECT.one.from(Header).where({ ID: req.params[0].ID });
 
-            console.log('user id',req.user.id);
+            console.log('user id', req.user.id);
 
             // await notification.sendNotification('test', orderData.OrderNumber, req.user.id);
 
@@ -112,9 +112,8 @@ class OrderService extends cds.ApplicationService {
             rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ customerID: orderData.Customer_ID, purchaseAmount: totalAmount }) });
             inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ productID: itemData.Product_ID, quantityPurchased: itemData.Quantity }) });
 
-
             await UPDATE(Header).set({ OrderStatus: 'Submitted' }).where({ ID: req.params[0].ID });
-            return this.read(Header).where({ ID: req.params[0].ID });
+            req.notify('Order placed successfully');
         });
         return super.init()
     }
