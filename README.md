@@ -2,6 +2,13 @@
 
 ## Prerequisites
 
+We are going to work with a trial account. Great if you have one otherwise create one following the steps below
+[Create SAP Trial Account](https://developers.sap.com/tutorials/hcp-create-trial-account.html)
+
+SAP Business Application Studio
+If you don’t have one, no worries please create one using the link below.
+[Setup SAP Business Application Studio](https://developers.sap.com/tutorials/appstudio-onboarding.html)
+
 Before proceeding, ensure you have access to the following SAP BTP services:
 
 - **SAP BTP HANA Cloud**
@@ -9,8 +16,17 @@ Before proceeding, ensure you have access to the following SAP BTP services:
 
 These services must be provisioned and configured in your SAP BTP subaccount.
 
+## What we have to start with?
+We have a order processing service, which takes an order request and then create the order in the system. 
+You may find the UI app in the app folder, entities in the db folder, and service implementation in the srv folder.
+
+## What are we going to do?
+We are going to enhance this service by adding a rewards program and a inventory update service. These are independent services are can be invoked asynchronously on order creation event.
+This use case is an example of outbox pattern, where remote operations are deferred until the main transaction has been successfully committed. This prevents accidental execution of remote calls in case the transaction is rolled back.
+
 ## Cloning the Repository in SAP Business Application Studio (BAS)
 
+Clone the branch `develop` from this repository and we will start the exercise from here. `develop` branch has a basic implementation of a order processing service.
 Follow the steps below to clone the repository in SAP BAS:
 
 1. Open **SAP Business Application Studio** from your SAP BTP Cockpit.
