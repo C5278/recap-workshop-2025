@@ -17,12 +17,12 @@ Before proceeding, ensure you have access to the following SAP BTP services:
 These services must be provisioned and configured in your SAP BTP subaccount.
 
 ## What we have to start with?
-We have a order processing service, which takes an order request and then create the order in the system. 
+We have an order processing service, which takes an order request and then creates the order in the system. 
 You may find the UI app in the app folder, entities in the db folder, and service implementation in the srv folder.
 
 ## What are we going to do?
-We are going to enhance this service by adding a rewards program and a inventory update service. These are independent services are can be invoked asynchronously on order creation event.
-This use case is an example of outbox pattern, where remote operations are deferred until the main transaction has been successfully committed. This prevents accidental execution of remote calls in case the transaction is rolled back.
+We are going to enhance this service by adding a rewards program and a inventory update service. These are independent services that can be invoked asynchronously when an order is created.
+This use case is an example of the outbox pattern, where remote operations are deferred until the main transaction has been successfully committed. This prevents accidental execution of remote calls in case the transaction is rolled back.
 
 ## Cloning the Repository in SAP Business Application Studio (BAS)
 
@@ -123,7 +123,7 @@ Follow the steps below to clone the repository in SAP BAS:
     11.2. This command will automatically:
 
     - Add necessary dependencies "@cap-js/notifications" (if missing).
-    - Add the following module definition (typically in `mta.yaml`) to enable notification content deployment during          deployment time:
+    - Add the following module definition (typically in `mta.yaml`) to enable notification content deployment during deployment time:
 
     ```yaml
           - name: notification-content-deployment
@@ -145,5 +145,3 @@ Follow the steps below to clone the repository in SAP BAS:
                 - name: salesorder-db
 
 12. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
-
-   
