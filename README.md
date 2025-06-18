@@ -105,11 +105,11 @@ Follow the steps below to clone the repository in SAP BAS:
            }
          }
        }
-       
+    ```   
 
    9.3. Copy the entire `Rewards` configuration block.
 
-   9.4. Open `package.json` in your working branch and paste the `Rewards` configuration insid.
+   9.4. Open `package.json` in your working branch and paste the `Rewards` configuration inside.
 
 10. Create the inventory folder and its service files to call the Inventory destination as in the `dev` branch:
 
