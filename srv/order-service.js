@@ -108,6 +108,7 @@ class OrderService extends cds.ApplicationService {
 
             const itemData = await SELECT.one.from(Items).where({ Header_ID: req.params[0].ID });
 
+            // TODO: Why stringify `payload` (and later parse it)?
             await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ customerID: orderData.Customer_ID, purchaseAmount: totalAmount }) });
             await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ productID: itemData.Product_ID, quantityPurchased: itemData.Quantity }) });
 
