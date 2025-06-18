@@ -1,6 +1,8 @@
 const cds = require('@sap/cds')
 
 const notification = require('./lib/notification')
+const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
+const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
 
 class OrderService extends cds.ApplicationService {
     init() {
@@ -51,7 +53,7 @@ class OrderService extends cds.ApplicationService {
 
                 for (let item of req.data.Items) {
                     if (!item.ID) {
-                        item.ID = uuidv4();
+                        item.ID = cds.utils.uuid();
                     }
 
                     item.OrderNumber = req.data.OrderNumber;
@@ -82,7 +84,7 @@ class OrderService extends cds.ApplicationService {
                         item.PositionNumber = positionNumber;
                     }
                     if (!item.ID) {
-                        item.ID = uuidv4();
+                        item.ID = cds.utils.uuid();
                     }
 
                     item.OrderNumber = req.data.OrderNumber;
@@ -106,11 +108,8 @@ class OrderService extends cds.ApplicationService {
 
             const itemData = await SELECT.one.from(Items).where({ Header_ID: req.params[0].ID });
 
-            const rewardService = cds.outboxed(await cds.connect.to("RewardService"));
-            const inventoryService = cds.outboxed(await cds.connect.to("InventoryService"));
-
-            rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ customerID: orderData.Customer_ID, purchaseAmount: totalAmount }) });
-            inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ productID: itemData.Product_ID, quantityPurchased: itemData.Quantity }) });
+            await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ customerID: orderData.Customer_ID, purchaseAmount: totalAmount }) });
+            await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ productID: itemData.Product_ID, quantityPurchased: itemData.Quantity }) });
 
 
             await UPDATE(Header).set({ OrderStatus: 'Submitted' }).where({ ID: req.params[0].ID });
