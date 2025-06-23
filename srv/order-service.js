@@ -12,14 +12,11 @@ class OrderService extends cds.ApplicationService {
             const orderNumberInit = "90000001";
             let OrderNumberNew;
 
-            const query = SELECT.from(Header)
+            const query = SELECT.from(Header).orderBy('OrderNumber desc')
             let results = await cds.run(query);
             // if (results.length === 0) {
             //   return null;
             // }
-
-            // Sort the results based on the OrderNumber in descending order
-            results.sort((a, b) => b.OrderNumber - a.OrderNumber);
 
             // Return the first element (which has the highest OrderNumber)
             const lastRecord = results[0];
