@@ -50,11 +50,9 @@ Follow the steps below to clone the repository in SAP BAS:
    6.1. In the `dev` branch, open the `srv/order-service.js` file and copy the handler:
 
    ```javascript
-   this.on('submitOrder', async (req) => {
-         const { ID } = req.data;
-         await UPDATE(Orders).set({ status: 'SUBMITTED' }).where({ ID });
-         return { message: `Order ${ID} submitted successfully.` };
-       });
+        this.on('submitOrder', async (req) => {
+            ....
+        });
       
 
 7. Copy the Inventory destination configuration from `package.json`:
@@ -66,12 +64,12 @@ Follow the steps below to clone the repository in SAP BAS:
    ```json
        "cds": {
          "requires": {
-           "Inventory": {
-             "kind": "rest",
-             "credentials": {
-               "destination": "inventory-destination"
-             }
-           }
+           "inventory-api": {
+              "kind": "odata",
+              "credentials": {
+                "destination": "inventory-api"
+               }
+            }
          }
        }
    ```     
@@ -87,12 +85,12 @@ Follow the steps below to clone the repository in SAP BAS:
    ```json
        "cds": {
          "requires": {
-           "Rewards": {
-             "kind": "rest",
-             "credentials": {
-               "destination": "rewards-destination"
-             }
-           }
+            "rewards-api": {
+              "kind": "odata",
+              "credentials": {
+                "destination": "rewards-api"
+              }
+            },
          }
        }
     ```   
@@ -103,7 +101,7 @@ Follow the steps below to clone the repository in SAP BAS:
 
 9. Create the inventory folder and its service files to call the Inventory destination as in the `dev` branch:
 
-    9.1. In dev branch, locate the `inventory` folder and its service files (`inventory-service.cds`, `inventory-service.js`, etc.) in the project.
+    10.1. In dev branch, locate the `inventory` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
 
     9.2. Copy the entire `inventory` folder along with its contents to your working branch (e.g., `main`).
 

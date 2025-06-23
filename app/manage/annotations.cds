@@ -98,6 +98,14 @@ annotate service.Header with @(
             ![@HTML5.CssDefaults]    : {width: '100%'}
         }
     ],
+    UI.PresentationVariant       : {
+        Visualizations: ['@UI.LineItem'],
+        SortOrder     : [{
+            $Type     : 'Common.SortOrderType',
+            Property  : OrderNumber,
+            Descending: true
+        }]
+    },
 ) {
     Description  @title       : '{i18n>description}';
     DeliveryDate @title       : '{i18n>deliverydate}';
