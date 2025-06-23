@@ -33,11 +33,9 @@ class OrderService extends cds.ApplicationService {
             if (req.data.Items && Array.isArray(req.data.Items)) {
                 let positionNumber = 10;
                 // Retrieve the maximum position number for the specific order number
-                const [result2] = await cds.run(
-                    SELECT.from(Items)
+                const [result2] = await SELECT.from(Items)
                         .columns("max(PositionNumber) as maxPositionNumber")
                         .where({ OrderNumber: req.data.OrderNumber })
-                );
 
                 positionNumber = result2.maxPositionNumber;
                 positionNumber++;
@@ -61,11 +59,9 @@ class OrderService extends cds.ApplicationService {
             if (req.data.Items && Array.isArray(req.data.Items)) {
                 let positionNumber = 10;
                 // Retrieve the maximum position number for the specific order number
-                const [result2] = await cds.run(
-                    SELECT.from(Items)
+                const [result2] = await SELECT.from(Items)
                         .columns("max(PositionNumber) as maxPositionNumber")
                         .where({ OrderNumber: req.data.OrderNumber })
-                );
 
                 positionNumber = result2.maxPositionNumber;
 
