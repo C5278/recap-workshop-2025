@@ -12,14 +12,10 @@ class OrderService extends cds.ApplicationService {
             const orderNumberInit = "90000001";
             let OrderNumberNew;
 
-            const query = SELECT.from(Header).orderBy('OrderNumber desc')
-            let results = await cds.run(query);
-            // if (results.length === 0) {
-            //   return null;
-            // }
+            const query = SELECT.one.from(Header).orderBy('OrderNumber desc')
+            const lastRecord = await cds.run(query);
 
             // Return the first element (which has the highest OrderNumber)
-            const lastRecord = results[0];
             if (lastRecord && lastRecord.OrderNumber) {
                 try {
                     // Set OrderNumber to Header
