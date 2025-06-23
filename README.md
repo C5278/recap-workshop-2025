@@ -21,7 +21,7 @@ We have an order processing service, which takes an order request and then creat
 You may find the UI app in the app folder, entities in the db folder, and service implementation in the srv folder.
 
 ## What are we going to do?
-We are going to enhance this service by adding a rewards program and a inventory update service. These are independent services that can be invoked asynchronously when an order is created.
+We are going to enhance this service by adding a rewards program and an inventory update service. These are independent services that can be invoked asynchronously when an order is created.
 This use case is an example of the outbox pattern, where remote operations are deferred until the main transaction has been successfully committed. This prevents accidental execution of remote calls in case the transaction is rolled back.
 
 ## Cloning the Repository in SAP Business Application Studio (BAS)
