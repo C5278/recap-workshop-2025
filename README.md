@@ -101,7 +101,7 @@ Follow the steps below to clone the repository in SAP BAS:
 
 9. Create the inventory folder and its service files to call the Inventory destination as in the `dev` branch:
 
-    10.1. In dev branch, locate the `inventory` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
+    9.1. In dev branch, locate the `inventory` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
 
     9.2. Copy the entire `inventory` folder along with its contents to your working branch (e.g., `main`).
 
