@@ -41,6 +41,7 @@ Follow the steps below to clone the repository in SAP BAS:
 
    ```bash
    git clone https://github.com/C5278/recap-workshop-2025.git
+   cd recap-workshop-2025
    npm install
    cds build
    cds watch
