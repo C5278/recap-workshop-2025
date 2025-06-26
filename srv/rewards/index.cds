@@ -1,7 +1,1 @@
-service RewardService {
-    event updateRewards {
-        orderNumber : String;
-        userID      : String;
-        payload     : String;
-    }
-}
+service RewardService {}

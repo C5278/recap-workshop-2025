@@ -1,6 +1,8 @@
 const cds = require('@sap/cds')
 
 const notification = require('./lib/notification')
+const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
+const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
 
 class OrderService extends cds.ApplicationService {
     init() {
@@ -10,17 +12,9 @@ class OrderService extends cds.ApplicationService {
             const orderNumberInit = "90000001";
             let OrderNumberNew;
 
-            const query = SELECT.from(Header)
-            let results = await cds.run(query);
-            // if (results.length === 0) {
-            //   return null;
-            // }
-
-            // Sort the results based on the OrderNumber in descending order
-            results.sort((a, b) => b.OrderNumber - a.OrderNumber);
+            const lastRecord = await SELECT.one.from(Header).orderBy('OrderNumber desc')
 
             // Return the first element (which has the highest OrderNumber)
-            const lastRecord = results[0];
             if (lastRecord && lastRecord.OrderNumber) {
                 try {
                     // Set OrderNumber to Header
@@ -39,11 +33,9 @@ class OrderService extends cds.ApplicationService {
             if (req.data.Items && Array.isArray(req.data.Items)) {
                 let positionNumber = 10;
                 // Retrieve the maximum position number for the specific order number
-                const [result2] = await cds.run(
-                    SELECT.from(Items)
+                const [result2] = await SELECT.from(Items)
                         .columns("max(PositionNumber) as maxPositionNumber")
                         .where({ OrderNumber: req.data.OrderNumber })
-                );
 
                 positionNumber = result2.maxPositionNumber;
                 positionNumber++;
@@ -51,7 +43,7 @@ class OrderService extends cds.ApplicationService {
 
                 for (let item of req.data.Items) {
                     if (!item.ID) {
-                        item.ID = uuidv4();
+                        item.ID = cds.utils.uuid();
                     }
 
                     item.OrderNumber = req.data.OrderNumber;
@@ -67,11 +59,9 @@ class OrderService extends cds.ApplicationService {
             if (req.data.Items && Array.isArray(req.data.Items)) {
                 let positionNumber = 10;
                 // Retrieve the maximum position number for the specific order number
-                const [result2] = await cds.run(
-                    SELECT.from(Items)
+                const [result2] = await SELECT.from(Items)
                         .columns("max(PositionNumber) as maxPositionNumber")
                         .where({ OrderNumber: req.data.OrderNumber })
-                );
 
                 positionNumber = result2.maxPositionNumber;
 
@@ -82,7 +72,7 @@ class OrderService extends cds.ApplicationService {
                         item.PositionNumber = positionNumber;
                     }
                     if (!item.ID) {
-                        item.ID = uuidv4();
+                        item.ID = cds.utils.uuid();
                     }
 
                     item.OrderNumber = req.data.OrderNumber;
@@ -106,11 +96,9 @@ class OrderService extends cds.ApplicationService {
 
             const itemData = await SELECT.one.from(Items).where({ Header_ID: req.params[0].ID });
 
-            const rewardService = cds.outboxed(await cds.connect.to("RewardService"));
-            const inventoryService = cds.outboxed(await cds.connect.to("InventoryService"));
-
-            rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ customerID: orderData.Customer_ID, purchaseAmount: totalAmount }) });
-            inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ productID: itemData.Product_ID, quantityPurchased: itemData.Quantity }) });
+            // TODO: Why stringify `payload` (and later parse it)?
+            await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ customerID: orderData.Customer_ID, purchaseAmount: totalAmount }) });
+            await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ productID: itemData.Product_ID, quantityPurchased: itemData.Quantity }) });
 
             await UPDATE(Header).set({ OrderStatus: 'Submitted' }).where({ ID: req.params[0].ID });
             req.notify('Order placed successfully');
