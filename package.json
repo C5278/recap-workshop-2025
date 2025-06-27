@@ -1,0 +1,53 @@
+{
+  "name": "salesorder",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@sap-cloud-sdk/http-client": "^4.0.2",
+    "@sap-cloud-sdk/resilience": "^4.0.2",
+    "@sap/cds": "^9",
+    "@sap/xssec": "^4",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/cds-types": "^0.10.0",
+    "@cap-js/sqlite": "^2",
+    "@sap/cds-dk": "^9",
+    "rimraf": "^5.0.5",
+    "mbt": "^1.2.29"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-orders": "cds watch --open orders/webapp/index.html?sap-ui-xx-viewCache=false",
+    "undeploy": "cf undeploy recap-workshop-2025 --delete-services --delete-service-keys --delete-service-brokers",
+    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
+  },
+  "cds": {
+    "requires": {
+      "queue": {
+        "ignoredContext": ["user", "http", "model", "timestamp", "_locale", "_features"]
+      },
+      "auth": {
+        "[production]": {
+          "strategy": "xsuaa"
+        },
+        "[development]": {
+          "strategy": "mocked"
+        }
+      },
+      "connectivity": true,
+      "destinations": true
+    },
+    "sql": {
+      "native_hana_associations": false
+    }
+  },
+  "sapux": [
+    "app/orders"
+  ]
+}

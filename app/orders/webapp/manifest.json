@@ -1,0 +1,175 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "recap.manage.orders",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.18.1",
+      "toolsId": "80ef1f60-3d42-4f9d-8557-10a42d3f055e"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/order/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "salesorder-manage": {
+          "semanticObject": "salesorder",
+          "action": "manage",
+          "title": "{{salesorder-manage.flpTitle}}",
+          "icon": "sap-icon://sales-order",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.136.2",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "recap.manage.orders.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "HeaderList",
+          "target": "HeaderList"
+        },
+        {
+          "pattern": "Header({key}):?query:",
+          "name": "HeaderObjectPage",
+          "target": "HeaderObjectPage"
+        },
+        {
+          "pattern": "Header({key})/Items({key2}):?query:",
+          "name": "ItemsObjectPage",
+          "target": "ItemsObjectPage"
+        }
+      ],
+      "targets": {
+        "HeaderList": {
+          "type": "Component",
+          "id": "HeaderList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Header",
+              "variantManagement": "Page",
+              "navigation": {
+                "Header": {
+                  "detail": {
+                    "route": "HeaderObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "HeaderObjectPage": {
+          "type": "Component",
+          "id": "HeaderObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Header"
+            }
+          }
+        },
+        "ItemsObjectPage": {
+          "type": "Component",
+          "id": "ItemsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Header/Items"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "sales"
+  }
+}
