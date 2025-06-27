@@ -6,8 +6,8 @@
         {
           "Language": "en",
           "TemplatePublic": "Sales Order",
-          "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
-          "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+          "TemplateSensitive": "You have {{NewReward}} reward points after your last order {{OrderNumber}}",
+          "TemplateGrouped": "Rewards",
           "TemplateLanguage": "mustache",
           "Subtitle": "Customer rewards has been updated"
         }

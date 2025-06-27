@@ -1,6 +1,6 @@
 const cds = require("@sap/cds");
 
-const notification = require('../lib/notification')
+const notification = require('../lib/rewards-notification');
 
 module.exports = (srv) => {
     srv.on("updateRewards", async (req) => {
@@ -12,6 +12,6 @@ module.exports = (srv) => {
             headers: { 'Content-Type': 'application/json' },
             data: req.data.payload
         })
-        await notification.sendNotification("rewards",req.data.orderNumber, req.data.userID)
+        await notification.sendNotification("rewards",req.data.orderNumber, response.rewardPoints, req.data.userID)
     })
 }

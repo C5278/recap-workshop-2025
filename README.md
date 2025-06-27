@@ -58,9 +58,13 @@ Follow the steps below to clone the repository in SAP BAS:
 
 7. Copy the Inventory destination configuration from `package.json`:
 
-   7.1. In the `dev` branch, open the `package.json` file.
+   7.1. Login to your BTP Trial account and import destination with file `inventory-api` in the cuurent repo 
 
-   7.2. Locate the Inventory destination configuration under the `cds.requires` section. It typically looks like this:
+   7.2 configure the client secret as =>  
+
+   7.3. In the `dev` branch, open the `package.json` file.
+
+   7.4. Locate the Inventory destination configuration under the `cds.requires` section. It typically looks like this:
 
    ```json
        "cds": {
@@ -78,6 +82,10 @@ Follow the steps below to clone the repository in SAP BAS:
    7.3. Copy the entire `Inventory` config.
 
 8. Copy the Rewards destination configuration from `package.json`:
+
+   8.1. Login to your BTP Trial account and import destination with file `rewards-api` in the current repo 
+
+   8.2 configure the client secret as =>  
 
    8.1. In the `dev` branch, open the `package.json` file.
 
@@ -110,7 +118,11 @@ Follow the steps below to clone the repository in SAP BAS:
 
     10.1. In dev branch, locate the `rewards` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
 
-    10.2. Copy the entire `rewards` folder along with its contents to your working branch (e.g., `main`).     
+    10.2. Copy the entire `rewards` folder along with its contents to your working branch (e.g., `main`).    
+
+11. Deploy app to BTP
+
+12.Configure SAP Build WOrkspace  
 
 11. Add **Notification configuration** to the project:
 
@@ -144,3 +156,136 @@ Follow the steps below to clone the repository in SAP BAS:
                 - name: salesorder-db
 
 12. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
+13. Create a file called `notification-types.json` under `/srv` to define Notification types 
+
+```json
+
+[
+    {
+      "NotificationTypeKey": "rewards",
+      "NotificationTypeVersion": "1",
+      "Templates": [
+        {
+          "Language": "en",
+          "TemplatePublic": "Sales Order",
+          "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+          "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+          "TemplateLanguage": "mustache",
+          "Subtitle": "Customer rewards has been updated"
+        }
+      ]
+    },
+    {
+        "NotificationTypeKey": "inventory",
+        "NotificationTypeVersion": "1",
+        "Templates": [
+          {
+            "Language": "en",
+            "TemplatePublic": "Sales Order",
+            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+            "TemplateLanguage": "mustache",
+            "Subtitle": "Stock has been updated"
+          }
+        ]
+      },
+      {
+        "NotificationTypeKey": "test",
+        "NotificationTypeVersion": "1",
+        "Templates": [
+          {
+            "Language": "en",
+            "TemplatePublic": "Sales Order",
+            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+            "TemplateLanguage": "mustache",
+            "Subtitle": "Tested"
+          }
+        ]
+      }
+  ]
+  ```
+14. Now refer this file in `package.json` under `cds.requires`
+
+  ```
+    "cds": {
+    "requires": {
+      "notifications": {
+        "types": "srv/notification-types.json"
+      },
+
+  ```
+
+15. Now these notifications are ready to be used. We have integrated an external service for rewards calculation. We can add a fiori notification after the rewards calculated.
+    Create a new file under /lib/rewards-notification.js and paste below code
+
+    ```js
+
+    /**
+ * Sends a notification to a user about a new reward for an order.
+ * @param {string} key - Notification type key.
+ * @param {string} orderNumber - The order number related to the reward.
+ * @param {string} newReward - The new reward information.
+ * @param {string} userId - The recipient user's ID.
+ */
+const sendNotification = async (key, orderNumber, newReward, userId) => {
+    try {
+        console.log(`[sendNotification] Preparing to send notification.`, {
+            key,
+            orderNumber,
+            newReward,
+            userId
+        });
+
+        // Connect to the notifications service
+        const alert = await cds.connect.to('notifications');
+        console.log(`[sendNotification] Connected to notifications service.`);
+
+        // Prepare notification payload
+        const notificationPayload = {
+            NotificationTypeKey: key,
+            Recipients: [{ RecipientId: userId }],
+            Priority: 'LOW',
+            NotificationTypeVersion: "1",
+            Properties: [
+                {
+                    Key: 'OrderNumber',
+                    IsSensitive: false,
+                    Language: 'en',
+                    Value: orderNumber,
+                    Type: 'String'
+                },
+                {
+                    Key: 'NewReward',
+                    IsSensitive: false,
+                    Language: 'en',
+                    Value: newReward,
+                    Type: 'String'
+                }
+            ],
+            NavigationTargetAction: "manage",
+            NavigationTargetObject: "salesorder",
+            TargetParameters: [
+                {
+                    "Key": "OrderNumber",
+                    "Value": orderNumber
+                }
+            ]
+        };
+
+        console.log(`[sendNotification] Notification payload:`, notificationPayload);
+
+        // Send the notification
+        await alert.notify(notificationPayload);
+
+        console.log(`[sendNotification] Notification sent successfully to userId: ${userId}`);
+    } catch (e) {
+        console.log('[sendNotification] Error at notification:', e.message);
+    }
+}
+
+module.exports = { sendNotification }
+```
+
+16. Now we need to prepare the UI app to receive the notifications, UI application resides in the `/app` folder and will be deployed via mta deployment.
+17. To enable access to the UI app needs to added the SAP Build Workspace
