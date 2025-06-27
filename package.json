@@ -37,6 +37,9 @@
   ],
   "cds": {
     "requires": {
+      "queue": {
+        "ignoredContext": ["user", "http", "model", "timestamp", "_locale", "_features"]
+      },
       "notifications": {
         "types": "srv/notification-types.json"
       },
