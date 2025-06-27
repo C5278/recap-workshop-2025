@@ -33,9 +33,9 @@
         "Templates": [
           {
             "Language": "en",
-            "TemplatePublic": "Sales Order",
-            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
-            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+            "TemplatePublic": "Test",
+            "TemplateSensitive": "Test Notification {{OrderNumber}}",
+            "TemplateGrouped": "Test Notification {{OrderNumber}}",
             "TemplateLanguage": "mustache",
             "Subtitle": "Tested"
           }

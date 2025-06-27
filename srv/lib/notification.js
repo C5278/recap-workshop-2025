@@ -4,6 +4,9 @@ const sendNotification = async (key, orderNumber, userId) => {
         console.log('Notif Start');
 
         const alert = await cds.connect.to('notifications');
+        
+        //added this to avoid programmtic errors while sending the notification
+        delete cds.context["_locale"];
 
         const response = await alert.notify({
             NotificationTypeKey: key,

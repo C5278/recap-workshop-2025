@@ -1,8 +1,5 @@
 const cds = require('@sap/cds')
-
 const notification = require('./lib/notification')
-const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
-const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
 
 class OrderService extends cds.ApplicationService {
     init() {
@@ -34,8 +31,8 @@ class OrderService extends cds.ApplicationService {
                 let positionNumber = 10;
                 // Retrieve the maximum position number for the specific order number
                 const [result2] = await SELECT.from(Items)
-                        .columns("max(PositionNumber) as maxPositionNumber")
-                        .where({ OrderNumber: req.data.OrderNumber })
+                    .columns("max(PositionNumber) as maxPositionNumber")
+                    .where({ OrderNumber: req.data.OrderNumber })
 
                 positionNumber = result2.maxPositionNumber;
                 positionNumber++;
@@ -60,8 +57,8 @@ class OrderService extends cds.ApplicationService {
                 let positionNumber = 10;
                 // Retrieve the maximum position number for the specific order number
                 const [result2] = await SELECT.from(Items)
-                        .columns("max(PositionNumber) as maxPositionNumber")
-                        .where({ OrderNumber: req.data.OrderNumber })
+                    .columns("max(PositionNumber) as maxPositionNumber")
+                    .where({ OrderNumber: req.data.OrderNumber })
 
                 positionNumber = result2.maxPositionNumber;
 
@@ -96,13 +93,18 @@ class OrderService extends cds.ApplicationService {
 
             const itemData = await SELECT.one.from(Items).where({ Header_ID: req.params[0].ID });
 
-            // TODO: Why stringify `payload` (and later parse it)?
-            await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ customerID: orderData.Customer_ID, purchaseAmount: totalAmount }) });
-            await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: JSON.stringify({ productID: itemData.Product_ID, quantityPurchased: itemData.Quantity }) });
+            const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
+            const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
+
+            await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
+            await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });
 
             await UPDATE(Header).set({ OrderStatus: 'Submitted' }).where({ ID: req.params[0].ID });
             req.notify('Order placed successfully');
         });
+        this.on("sendNotifications",async (req)=>{
+            await notification.sendNotification('test', "12", req.user.id);
+        })
         return super.init()
     }
 }

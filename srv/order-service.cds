@@ -25,5 +25,5 @@ service OrderService {
     entity Customers  as projection on so.Customers;
     entity Products   as projection on so.Products;
 
-//   event OrderedBook : { book: Books:ID; quantity: Integer; buyer: String };
+    function sendNotifications() returns String;
 }
