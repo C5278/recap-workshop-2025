@@ -116,19 +116,75 @@ Follow the steps below to clone the repository in SAP BAS:
       }
     ```   
 
-9. Create the inventory folder and its service files to call the Inventory destination as in the `dev` branch:
+9. Create the inventory service files to call the Inventory destination:
 
-    9.1. In dev branch, locate the `inventory` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
+    9.1. create a folder called `inventory`
 
-    9.2. Copy the entire `inventory` folder along with its contents to your working branch (e.g., `main`).
+    9.2. create `index.cds` file and add below content
 
-10. Create the rewards folder and its service files to call the Rewards destination as in the `dev` branch:
+   ```
+      service InventoryService {}
+   ```
+   9.2. create `index.js` file and add below content
 
-    10.1. In dev branch, locate the `rewards` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
+   ```
+         const cds = require("@sap/cds");
 
-    10.2. Copy the entire `rewards` folder along with its contents to your working branch (e.g., `main`).     
+         const notification = require('../lib/notification')
 
-11. Add **Notification configuration** to the project:
+
+         module.exports = (srv) => {
+             srv.on("updateStock", async (req) => {
+                 try {
+                     const inventory = await cds.connect.to("inventory-api");
+         
+                     const response = await inventory.send({
+                         method: 'POST',
+                         path: "odata/v4/inventory/updateStock",
+                         headers: { 'Content-Type': 'application/json' },
+                         data: req.data.payload
+                     })
+         
+                     await notification.sendNotification("inventory", req.data.orderNumber, req.data.userID)
+                 } catch (e) {
+                     throw e;
+                 }
+             })
+         }
+   ```
+
+10. Create the inventory service files to call the Inventory destination:
+
+    10.1. create a folder called `rewards`
+
+    10.2. create `index.cds` file and add below content
+
+   ```
+      service RewardService {}
+   ```
+   10.2. create `index.js` file and add below content
+
+   ```
+         const cds = require("@sap/cds");
+
+         const notification = require('../lib/rewards-notification');
+         
+         module.exports = (srv) => {
+             srv.on("updateRewards", async (req) => {
+                 const rewards = await cds.connect.to("rewards-api");
+         
+                 const response = await rewards.send({
+                     method: 'POST',
+                     path: "odata/v4/rewards/UpdateReward",
+                     headers: { 'Content-Type': 'application/json' },
+                     data: req.data.payload
+                 })
+                 await notification.sendNotification("rewards",req.data.orderNumber, response.rewardPoints, req.data.userID)
+             })
+         }
+   ```
+
+12. Add **Notification configuration** to the project:
 
     11.1. In the terminal, run the following command to add the notifications module to your CAP project:
            
@@ -161,4 +217,4 @@ Follow the steps below to clone the repository in SAP BAS:
     ```
     11.3. Copy the entire `lib` folder along with its contents to your working branch (e.g., `main`). 
 
-12. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
+13. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
