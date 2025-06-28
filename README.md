@@ -52,57 +52,69 @@ Follow the steps below to clone the repository in SAP BAS:
 
    ```javascript
         this.on('submitOrder', async (req) => {
-            const orderData = await SELECT.one.from(Header).where({ ID: req.params[0].ID });
+            try {
+                const orderData = await SELECT.one.from(Header).where({ ID: req.params[0].ID });
 
-            console.log('user id', req.user.id);
+                console.log('user id', req.user.id);
 
-            const { totalAmount } = await SELECT.one.from(Items)
-                .columns("sum(Price) as totalAmount")
-                .where({ OrderNumber: orderData.OrderNumber })
+                const { totalAmount } = await SELECT.one.from(Items)
+                    .columns("sum(Price) as totalAmount")
+                    .where({ OrderNumber: orderData.OrderNumber })
 
-            const itemData = await SELECT.one.from(Items).where({ Header_ID: req.params[0].ID });
+                const itemData = await SELECT.one.from(Items).where({ Header_ID: req.params[0].ID });
 
-            const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
-            const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
+                // Get the queued Reward service
+                const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
 
-            await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
+                // Get the queued Inventory service
+                const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
 
-            await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });
+                // Store the reward service event/message to be emitted after the transaction with the required data
+                await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
 
-            await UPDATE(Header).set({ OrderStatus: 'Submitted' }).where({ ID: req.params[0].ID });
-            req.notify('Order placed successfully');
+                // Store the inventory service event/message to be emitted after the transaction with the required data
+                await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });
+
+                await UPDATE(Header).set({ OrderStatus: 'Submitted' }).where({ ID: req.params[0].ID });
+
+                req.notify('Order placed successfully');
+            } catch (e) {
+                req.reject(500, e.message);
+            }
         });
       
 
-7. Copy the Inventory destination configuration below into the cds.requires section of `package.json`:
+7. Configure the Inventory service to be queued, and define the Inventory REST API destination under cds.requires in `package.json` to enable calls to the Inventory REST API
 
    ```json
-       "cds": {
-         "requires": {
-           "inventory-api": {
-              "kind": "odata",
-              "credentials": {
-                "destination": "inventory-api"
-               }
-            }
-         }
-       }
+      "InventoryService": {
+        "kind": "odata",
+        "model": "srv/inventory/index",
+        "impl": "srv/inventory/index"
+      },
+      "inventory-api": {
+        "kind": "odata",
+        "credentials": {
+          "destination": "inventory-api"
+        }
+      }
    ```     
 
-8.  Copy the Rewards destination configuration below into the cds.requires section of `package.json`:
+8.  Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
 
-   ```json
-       "cds": {
-         "requires": {
-            "rewards-api": {
-              "kind": "odata",
-              "credentials": {
-                "destination": "rewards-api"
-              }
-            }
-         }
-       }
-   ```   
+    ```json
+      "RewardService": {
+        "kind": "odata",
+        "model": "srv/rewards/index",
+        "impl": "srv/rewards/index"
+      },
+      "rewards-api": {
+        "kind": "odata",
+        "credentials": {
+          "destination": "rewards-api"
+        }
+      }
+    ```   
 
 9. Create the inventory folder and its service files to call the Inventory destination as in the `dev` branch:
 
