@@ -193,6 +193,7 @@ Follow the steps below to clone the repository in SAP BAS:
             }
         })
     }   
+   ```
 
 11. Add **Notification configuration** to the project:
 
@@ -225,6 +226,46 @@ Follow the steps below to clone the repository in SAP BAS:
                 - name: salesorder-connectivity
                 - name: salesorder-db
     ```
-    11.3. Copy the entire `lib` folder along with its contents to your working branch (e.g., `main`). 
+12. Create a `lib` folder under the `srv` directory. This will hold your reusable notification logic (used by the rewards or inventory services).
+    12.1. Create a file named `notification.js` in the lib folder with the following content:
+    ```javascript
+    const cds = require("@sap/cds");
 
-12. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
+    const sendNotification = async (key, orderNumber, userId) => {
+        try {
+            // Connect to the 'notifications' service (destination)
+            const alert = await cds.connect.to('notifications');
+
+            // Send a structured notification
+            const response = await alert.notify({
+                NotificationTypeKey: key,
+                Recipients: [{ RecipientId: userId }],
+                Priority: 'HIGH',
+                NotificationTypeVersion: "1",
+                Properties: [
+                    {
+                        Key: 'OrderNumber',
+                        IsSensitive: false,
+                        Language: 'en',
+                        Value: orderNumber,
+                        Type: 'String'
+                    }
+                ],
+                NavigationTargetAction: "manage",
+                NavigationTargetObject: "salesorder",
+                TargetParameters: [
+                    {
+                      Key: "OrderNumber",
+                      Value: orderNumber
+                    }
+                ]
+            });
+
+        } catch (e) {
+            console.error('Error in notification:', e.message);
+        }
+    };
+
+    module.exports = { sendNotification };    
+
+13. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
