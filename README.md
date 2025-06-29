@@ -193,8 +193,7 @@ Follow the steps below to clone the repository in SAP BAS:
             }
         })
     }   
-   ```
-
+  
 11. Add **Notification configuration** to the project:
 
     11.1. In the terminal, run the following command to add the notifications module to your CAP project:
@@ -226,7 +225,8 @@ Follow the steps below to clone the repository in SAP BAS:
                 - name: salesorder-connectivity
                 - name: salesorder-db
     ```
-12. Create a `lib` folder under the `srv` directory. This will hold your reusable notification logic (used by the rewards or inventory services).
+12. Create a `lib` folder under the `srv` directory. This will hold your reusable notification logic (used by the rewards or inventory services):
+
     12.1. Create a file named `notification.js` in the lib folder with the following content:
     ```javascript
     const cds = require("@sap/cds");
@@ -266,6 +266,20 @@ Follow the steps below to clone the repository in SAP BAS:
         }
     };
 
-    module.exports = { sendNotification };    
+    module.exports = { sendNotification }; 
+    ```   
+
+    12.2. After creating the notification.js utility file, ensure you uncomment the import and usage in `srv/rewards/index.js` file.
+    ```javascript
+    // Import the rewards notification utility
+    const notification = require('../lib/notification')
+    ```
+
+    ```javascript
+    // Trigger a notification with the returned reward points and context
+    await notification.sendNotification("rewards",req.data.orderNumber, response.rewardPoints, req.data.userID)
+    ```
+
+    12.3. Please make sure to follow the same steps in the inventory service implementation file: `srv/inventory/index.js` 
 
 13. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
