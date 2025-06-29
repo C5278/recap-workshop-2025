@@ -116,17 +116,83 @@ Follow the steps below to clone the repository in SAP BAS:
       }
     ```   
 
-9. Create the inventory folder and its service files to call the Inventory destination as in the `dev` branch:
+9. Create a new folder named `inventory` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Inventory destination.
 
-    9.1. In dev branch, locate the `inventory` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
+    9.1. Create a file named `index.cds` in the `srv/inventory` folder with the following content:
+    ```cds
+         service InventoryService {}
+    ```
 
-    9.2. Copy the entire `inventory` folder along with its contents to your working branch (e.g., `main`).
+    9.2. Create a file named `index.js` in the same folder with the following content:
+    ```javascript
+    const cds = require("@sap/cds");
 
-10. Create the rewards folder and its service files to call the Rewards destination as in the `dev` branch:
+    // Import the inventory notification utility
+    // const notification = require('../lib/notification')
 
-    10.1. In dev branch, locate the `rewards` folder and its service files (`index.cds`, `index.js`, etc.) in the project.
+    module.exports = (srv) => {
 
-    10.2. Copy the entire `rewards` folder along with its contents to your working branch (e.g., `main`).     
+        // Define an event handler for the 'updateStock' action  
+        srv.on("updateStock", async (req) => {
+            try {
+                // Connect to the external Inventory service (destination: 'inventory-api')
+                const inventory = await cds.connect.to("inventory-api");
+
+                // Send a POST request to the external Inventory REST API
+                const response = await inventory.send({
+                    method: 'POST',
+                    path: "odata/v4/inventory/updateStock",
+                    headers: { 'Content-Type': 'application/json' },
+                    data: req.data.payload
+                })
+
+                // Trigger a notification after successfully calling the inventory service
+                // await notification.sendNotification("inventory", req.data.orderNumber, req.data.userID)
+            } catch (e) {
+                // Rethrow the error so queue can retry
+                throw e;
+            }
+        })
+    }
+
+10. Create a new folder named `rewards` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Rewards destination.
+
+    10.1. Create a file named `index.cds` in the `srv/rewards` folder with the following content:
+    ```cds
+         service RewardService {}
+    ```
+
+    10.2. Create a file named `index.js` in the same folder with the following content:
+    ```javascript
+    const cds = require("@sap/cds");
+
+    // Import the rewards notification utility
+    // const notification = require('../lib/rewards-notification');
+
+    module.exports = (srv) => {
+
+        // Define an event handler for the 'updateRewards' action
+        srv.on("updateRewards", async (req) => {
+            try {
+                // Connect to the external rewards service (destination: 'rewards-api')
+                const rewards = await cds.connect.to("rewards-api");
+
+                // Send a POST request to the external rewards REST API
+                const response = await rewards.send({
+                    method: 'POST',
+                    path: "odata/v4/rewards/UpdateReward",
+                    headers: { 'Content-Type': 'application/json' },
+                    data: req.data.payload
+                });
+
+                // Trigger a notification with the returned reward points and context
+                // await notification.sendNotification("rewards",req.data.orderNumber, response.rewardPoints, req.data.userID)
+            } catch (e) {
+                // Rethrow the error so queue can retry
+                throw e;
+            }
+        })
+    }   
 
 11. Add **Notification configuration** to the project:
 
