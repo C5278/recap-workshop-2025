@@ -192,17 +192,14 @@ Follow the steps below to clone the repository in SAP BAS:
                 throw e;
             }
         })
-    }   
-  
-   ```
+    }  ```
 11. Deploy app to BTP
 
-    ```
+    ```bash
         npm i
         mbt build
         cf login
-        cf deploy
-    ```
+        cf deploy```
 
 12. Configure SAP Build Workspace  
 
@@ -391,8 +388,7 @@ Follow the steps below to clone the repository in SAP BAS:
               }
           }
 
-          module.exports = { sendNotification }
-```
+          module.exports = { sendNotification }```
 
 18. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. 
 
