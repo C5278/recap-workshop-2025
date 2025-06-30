@@ -194,14 +194,51 @@ Follow the steps below to clone the repository in SAP BAS:
         })
     }   
   
-11. Add **Notification configuration** to the project:
+   ```
+11. Deploy app to BTP
 
-    11.1. In the terminal, run the following command to add the notifications module to your CAP project:
+    ```
+        npm i
+        mbt build
+        cf login
+        cf deploy
+    ```
+
+12. Configure SAP Build Workspace  
+
+    12.1 Create instance for SAP Build Work Zone, standard edition
+          12.1.1 In the subaccount navigate to Instances and Subscriptions, click on Create button
+          12.1.2 Service -> SAP Build Work Zone, standard edition
+                 Plan -> subcriptions, standard
+
+                 [
+                  If you get the below error then follow step  below
+                      `To subscribe this application link an Identity Authentication tenant to the subaccount with the "Establish Trust" option. `
+                  1. Go to Trust COnfiguration and click on Enable Trust
+                  2. Select '.trial-accounts.ondemand.com' and enable the IAS tenant
+                  3. Click on `Administration Console` and click on forgot to password, to set password for user.
+                  4. Go to `Role Collections` and provide `Launchpad_Admin` role to the user.
+                  5. Now you are ready to create `SAP Build Work Zone` instance, go to step 12.1
+                 ]
+        12.1.3 Click on SAP Build Work Zone instance and go to the application
+        12.1.4 After login in to the Application, Click on `Create Site` with name 'Sales Order'
+        12.1.5 Now Navigate to Content Manager > Content Explorer > HTML5 Apps 
+        12.1.6 Choose `Manage Sales Order` app and click on add
+        12.1.7 Now create a catalog by Content Manager > Create > Catalog and Enable `Manage Sales Order` app 
+        12.1.8 Now create a catalog by Content Manager > Create > Group and Enable `Manage Sales Order` app 
+        12.1.9 Navigate to Role called `Everyone', click on edit and enable  `Manage Sales Order` app 
+        12.1.10 Now click on the sales order site URL. you should be able to see the sales order application
+
+13. Now you should be able to test the application from the new site
+        
+14. Add **Notification configuration** to the project:
+
+    14.1. In the terminal, run the following command to add the notifications module to your CAP project:
            
     ```bash
     cds add notifications            
     ```
-    11.2. This command will automatically:
+    14.2. This command will automatically:
 
     - Add necessary dependencies "@cap-js/notifications" (if missing).
     - Add the following module definition (typically in `mta.yaml`) to enable notification content deployment during deployment time:
@@ -224,62 +261,175 @@ Follow the steps below to clone the repository in SAP BAS:
                 - name: salesorder-destination
                 - name: salesorder-connectivity
                 - name: salesorder-db
-    ```
-12. Create a `lib` folder under the `srv` directory. This will hold your reusable notification logic (used by the rewards or inventory services):
 
-    12.1. Create a file named `notification.js` in the lib folder with the following content:
-    ```javascript
-    const cds = require("@sap/cds");
 
-    const sendNotification = async (key, orderNumber, userId) => {
-        try {
-            // Connect to the 'notifications' service (destination)
-            const alert = await cds.connect.to('notifications');
+15. Create a file called `notification-types.json` under `/srv` to define Notification types 
 
-            // Send a structured notification
-            const response = await alert.notify({
-                NotificationTypeKey: key,
-                Recipients: [{ RecipientId: userId }],
-                Priority: 'HIGH',
-                NotificationTypeVersion: "1",
-                Properties: [
-                    {
-                        Key: 'OrderNumber',
-                        IsSensitive: false,
-                        Language: 'en',
-                        Value: orderNumber,
-                        Type: 'String'
-                    }
-                ],
-                NavigationTargetAction: "manage",
-                NavigationTargetObject: "salesorder",
-                TargetParameters: [
-                    {
-                      Key: "OrderNumber",
-                      Value: orderNumber
-                    }
-                ]
-            });
+```json
 
-        } catch (e) {
-            console.error('Error in notification:', e.message);
+[
+    {
+      "NotificationTypeKey": "rewards",
+      "NotificationTypeVersion": "1",
+      "Templates": [
+        {
+          "Language": "en",
+          "TemplatePublic": "Sales Order",
+          "TemplateSensitive": "You have {{NewReward}} reward points after your last order {{OrderNumber}}",
+          "TemplateGrouped": "Rewards",
+          "TemplateLanguage": "mustache",
+          "Subtitle": "Customer rewards has been updated"
         }
-    };
+      ]
+    },
+    {
+        "NotificationTypeKey": "inventory",
+        "NotificationTypeVersion": "1",
+        "Templates": [
+          {
+            "Language": "en",
+            "TemplatePublic": "Sales Order",
+            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+            "TemplateLanguage": "mustache",
+            "Subtitle": "Stock has been updated"
+          }
+        ]
+      },
+      {
+        "NotificationTypeKey": "test",
+        "NotificationTypeVersion": "1",
+        "Templates": [
+          {
+            "Language": "en",
+            "TemplatePublic": "Sales Order",
+            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
+            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
+            "TemplateLanguage": "mustache",
+            "Subtitle": "Tested"
+          }
+        ]
+      }
+  ]
+  ```
+16. Now refer this file in `package.json` under `cds.requires`
 
-    module.exports = { sendNotification }; 
-    ```   
+  ```json
+    "cds": {
+    "requires": {
+      "notifications": {
+        "types": "srv/notification-types.json"
+      },
 
-    12.2. After creating the notification.js utility file, ensure you uncomment the import and usage in `srv/rewards/index.js` file.
+  ```
+
+17. Now these notifications are ready to be used. We have integrated an external service for rewards calculation. We can add a fiori notification after the rewards calculated.
+    Create a new file under /lib/rewards-notification.js and paste below code
+
     ```javascript
-    // Import the rewards notification utility
-    const notification = require('../lib/notification')
-    ```
 
-    ```javascript
-    // Trigger a notification with the returned reward points and context
-    await notification.sendNotification("rewards",req.data.orderNumber, response.rewardPoints, req.data.userID)
-    ```
+          /**
+           * Sends a notification to a user about a new reward for an order.
+          * @param {string} key - Notification type key.
+          * @param {string} orderNumber - The order number related to the reward.
+          * @param {string} newReward - The new reward information.
+          * @param {string} userId - The recipient user's ID.
+          */
+          const sendNotification = async (key, orderNumber, newReward, userId) => {
+              try {
+                  console.log(`[sendNotification] Preparing to send notification.`, {
+                      key,
+                      orderNumber,
+                      newReward,
+                      userId
+                  });
 
-    12.3. Please make sure to follow the same steps in the inventory service implementation file: `srv/inventory/index.js` 
+                  // Connect to the notifications service
+                  const alert = await cds.connect.to('notifications');
+                  console.log(`[sendNotification] Connected to notifications service.`);
 
-13. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
+                  // Prepare notification payload
+                  const notificationPayload = {
+                      NotificationTypeKey: key,
+                      Recipients: [{ RecipientId: userId }],
+                      Priority: 'LOW',
+                      NotificationTypeVersion: "1",
+                      Properties: [
+                          {
+                              Key: 'OrderNumber',
+                              IsSensitive: false,
+                              Language: 'en',
+                              Value: orderNumber,
+                              Type: 'String'
+                          },
+                          {
+                              Key: 'NewReward',
+                              IsSensitive: false,
+                              Language: 'en',
+                              Value: newReward,
+                              Type: 'String'
+                          }
+                      ],
+                      NavigationTargetAction: "manage",
+                      NavigationTargetObject: "salesorder",
+                      TargetParameters: [
+                          {
+                              "Key": "OrderNumber",
+                              "Value": orderNumber
+                          }
+                      ]
+                  };
+
+                  console.log(`[sendNotification] Notification payload:`, notificationPayload);
+
+                  // Send the notification
+                  await alert.notify(notificationPayload);
+
+                  console.log(`[sendNotification] Notification sent successfully to userId: ${userId}`);
+              } catch (e) {
+                  console.log('[sendNotification] Error at notification:', e.message);
+              }
+          }
+
+          module.exports = { sendNotification }
+```
+
+18. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. 
+
+```javascript
+    
+          const cds = require("@sap/cds");
+
+          //Import the rewards notification utility
+          const notification = require('../lib/rewards-notification');
+
+          module.exports = (srv) => {
+
+              // Define an event handler for the 'updateRewards' action
+              srv.on("updateRewards", async (req) => {
+                  try {
+                      // Connect to the external rewards service (destination: 'rewards-api')
+                      const rewards = await cds.connect.to("rewards-api");
+
+                      // Send a POST request to the external rewards REST API
+                      const response = await rewards.send({
+                          method: 'POST',
+                          path: "odata/v4/rewards/UpdateReward",
+                          headers: { 'Content-Type': 'application/json' },
+                          data: req.data.payload
+                      });
+
+                      // Trigger a notification with the returned reward points and context
+                      await notification.sendNotification("rewards",req.data.orderNumber, response.rewardPoints, req.data.userID)
+                  } catch (e) {
+                      // Rethrow the error so queue can retry
+                      throw e;
+                  }
+              })
+          } 
+    ```  
+  
+19. Similarly enable notification on inventory service
+20. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
+
+21. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP.
