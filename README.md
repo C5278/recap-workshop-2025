@@ -192,21 +192,25 @@ Follow the steps below to clone the repository in SAP BAS:
                 throw e;
             }
         })
-    }  ```
+    }  
+    
 11. Deploy app to BTP
 
     ```bash
         npm i
         mbt build
         cf login
-        cf deploy```
+        cf deploy
+    ```
 
 12. Configure SAP Build Workspace  
 
-    12.1 Create instance for SAP Build Work Zone, standard edition
-          12.1.1 In the subaccount navigate to Instances and Subscriptions, click on Create button
-          12.1.2 Service -> SAP Build Work Zone, standard edition
-                 Plan -> subcriptions, standard
+    12.1. Create instance for SAP Build Work Zone, standard edition.
+
+    - In the subaccount navigate to Instances and Subscriptions, click on Create button
+
+    - Service -> SAP Build Work Zone, standard edition,
+                 Plan -> subscriptions, standard
 
                  [
                   If you get the below error then follow step  below
@@ -217,14 +221,14 @@ Follow the steps below to clone the repository in SAP BAS:
                   4. Go to `Role Collections` and provide `Launchpad_Admin` role to the user.
                   5. Now you are ready to create `SAP Build Work Zone` instance, go to step 12.1
                  ]
-        12.1.3 Click on SAP Build Work Zone instance and go to the application
-        12.1.4 After login in to the Application, Click on `Create Site` with name 'Sales Order'
-        12.1.5 Now Navigate to Content Manager > Content Explorer > HTML5 Apps 
-        12.1.6 Choose `Manage Sales Order` app and click on add
-        12.1.7 Now create a catalog by Content Manager > Create > Catalog and Enable `Manage Sales Order` app 
-        12.1.8 Now create a catalog by Content Manager > Create > Group and Enable `Manage Sales Order` app 
-        12.1.9 Navigate to Role called `Everyone', click on edit and enable  `Manage Sales Order` app 
-        12.1.10 Now click on the sales order site URL. you should be able to see the sales order application
+    - Click on SAP Build Work Zone instance and go to the application
+    - After login in to the Application, Click on `Create Site` with name 'Sales Order'
+    - Now Navigate to Content Manager > Content Explorer > HTML5 Apps 
+    - Choose `Manage Sales Order` app and click on add
+    - Now create a catalog by Content Manager > Create > Catalog and Enable `Manage Sales Order` app 
+    - Now create a catalog by Content Manager > Create > Group and Enable `Manage Sales Order` app 
+    - Navigate to Role called `Everyone`, click on edit and enable  `Manage Sales Order` app 
+    - Now click on the sales order site URL. you should be able to see the sales order application
 
 13. Now you should be able to test the application from the new site
         
@@ -262,24 +266,23 @@ Follow the steps below to clone the repository in SAP BAS:
 
 15. Create a file called `notification-types.json` under `/srv` to define Notification types 
 
-```json
-
-[
-    {
-      "NotificationTypeKey": "rewards",
-      "NotificationTypeVersion": "1",
-      "Templates": [
-        {
-          "Language": "en",
-          "TemplatePublic": "Sales Order",
-          "TemplateSensitive": "You have {{NewReward}} reward points after your last order {{OrderNumber}}",
-          "TemplateGrouped": "Rewards",
-          "TemplateLanguage": "mustache",
-          "Subtitle": "Customer rewards has been updated"
-        }
-      ]
-    },
-    {
+    ```json
+    [
+      {
+        "NotificationTypeKey": "rewards",
+        "NotificationTypeVersion": "1",
+        "Templates": [
+          {
+            "Language": "en",
+            "TemplatePublic": "Sales Order",
+            "TemplateSensitive": "You have {{NewReward}} reward points after your last order {{OrderNumber}}",
+            "TemplateGrouped": "Rewards",
+            "TemplateLanguage": "mustache",
+            "Subtitle": "Customer rewards has been updated"
+          }
+        ]
+      },
+      {
         "NotificationTypeKey": "inventory",
         "NotificationTypeVersion": "1",
         "Templates": [
@@ -307,18 +310,19 @@ Follow the steps below to clone the repository in SAP BAS:
           }
         ]
       }
-  ]
-  ```
+    ]
+    
+    ```
 16. Now refer this file in `package.json` under `cds.requires`
 
-  ```json
+    ```json
     "cds": {
     "requires": {
       "notifications": {
         "types": "srv/notification-types.json"
       },
 
-  ```
+    ```
 
 17. Now these notifications are ready to be used. We have integrated an external service for rewards calculation. We can add a fiori notification after the rewards calculated.
     Create a new file under /lib/rewards-notification.js and paste below code
@@ -388,11 +392,12 @@ Follow the steps below to clone the repository in SAP BAS:
               }
           }
 
-          module.exports = { sendNotification }```
+          module.exports = { sendNotification }
+        
 
 18. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. 
 
-```javascript
+    ```javascript
     
           const cds = require("@sap/cds");
 
@@ -423,7 +428,7 @@ Follow the steps below to clone the repository in SAP BAS:
                   }
               })
           } 
-    ```  
+      
   
 19. Similarly enable notification on inventory service
 20. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
