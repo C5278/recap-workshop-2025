@@ -29,9 +29,6 @@
   },
   "cds": {
     "requires": {
-      "queue": {
-        "ignoredContext": ["user", "http", "model", "timestamp", "_locale", "_features"]
-      },
       "auth": {
         "[production]": {
           "strategy": "xsuaa"
