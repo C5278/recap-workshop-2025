@@ -69,7 +69,8 @@ Follow the steps below to clone the repository in SAP BAS:
             } catch (e) {
                 req.reject(500, e.message);
             }
-        });```
+        });
+   ```
 
 
 7. Now lets create two services for Inventory update and Rewards calculation. These are extrenal services which can be consumed as a odata service.
@@ -451,10 +452,10 @@ Follow the steps below to clone the repository in SAP BAS:
   
 17. Similarly enable notification on inventory service
 18. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
+    After the step mentioned in the link the following will be achieved
 
-After the step mentioned in the link the following will be achieved
-  18.1 A new role will be created for Notification admin
-  18.2 Enable Notifications in the SAP Build Workspace
-  18.3 Create a destination called SAP_Notifications
+      18.1 A new role will be created for Notification admin
+      18.2 Enable Notifications in the SAP Build Workspace
+      18.3 Create a destination called SAP_Notifications
 
 19. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP. Now create a new order and place the order. After the order processing 
