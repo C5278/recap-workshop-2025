@@ -315,20 +315,6 @@ Follow the steps below to clone the repository in SAP BAS:
             "Subtitle": "Stock has been updated"
           }
         ]
-      },
-      {
-        "NotificationTypeKey": "test",
-        "NotificationTypeVersion": "1",
-        "Templates": [
-          {
-            "Language": "en",
-            "TemplatePublic": "Sales Order",
-            "TemplateSensitive": "Sales Order {{OrderNumber}} Update",
-            "TemplateGrouped": "Sales Order {{OrderNumber}} Update",
-            "TemplateLanguage": "mustache",
-            "Subtitle": "Tested"
-          }
-        ]
       }
     ]
     
@@ -412,7 +398,9 @@ Follow the steps below to clone the repository in SAP BAS:
               }
           }
 
-          module.exports = { sendNotification }```
+          module.exports = { sendNotification }
+          
+    ```
         
 
 16. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. 
@@ -448,9 +436,9 @@ Follow the steps below to clone the repository in SAP BAS:
                   }
               })
           } 
-      
+      ```
   
-17. Similarly enable notification on inventory service
+17. Similarly enable notification on inventory service (Optional try it yourself)
 18. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
     After the step mentioned in the link the following will be achieved
 
@@ -458,4 +446,4 @@ Follow the steps below to clone the repository in SAP BAS:
       18.2 Enable Notifications in the SAP Build Workspace
       18.3 Create a destination called SAP_Notifications
 
-19. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP. Now create a new order and place the order. After the order processing 
+19. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP. Now create a new order and place the order. After the order is placed users should receive a notification.
