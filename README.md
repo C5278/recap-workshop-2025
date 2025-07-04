@@ -77,7 +77,7 @@ Follow the steps below to clone the repository in SAP BAS:
 
     7.1. Create a new folder named `inventory` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Inventory destination.
 
-        7.1.1. Create a file named `index.cds` in the `srv/inventory` folder with the following content:
+      > Create a file named `index.cds` in the `srv/inventory` folder with the following content:
 
         ```cds
             service InventoryService {}
@@ -117,7 +117,7 @@ Follow the steps below to clone the repository in SAP BAS:
         }
         ```
 
-        7.1.3 Configure the Inventory service to be queued, and define the Inventory REST API destination under cds.requires in `package.json` to enable calls to the Inventory REST API
+        > Configure the Inventory service to be queued, and define the Inventory REST API destination under cds.requires in `package.json` to enable calls to the Inventory REST API
 
             ```json
                 "InventoryService": {
