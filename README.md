@@ -136,13 +136,13 @@ Follow the steps below to clone the repository in SAP BAS:
 
     7.2. Create a new folder named `rewards` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Rewards destination.
 
-        > Create a file named `index.cds` in the `srv/rewards` folder with the following content:
+> Create a file named `index.cds` in the `srv/rewards` folder with the following content:
 
         ```cds
             service RewardService {}
         ```
 
-        > Create a file named `index.js` in the same folder with the following content:
+> Create a file named `index.js` in the same folder with the following content:
 
         ```javascript
         const cds = require("@sap/cds");
@@ -173,9 +173,9 @@ Follow the steps below to clone the repository in SAP BAS:
                     throw e;
                 }
             })
-        } ``` 
-
-        > Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
+        } 
+        ``` 
+> Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
 
         ```json
           "RewardService": {
@@ -201,7 +201,8 @@ Follow the steps below to clone the repository in SAP BAS:
                 const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
 
                 // Store the inventory service event/message to be emitted after the transaction with the required data
-                await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });```
+                await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });
+            ```
 
     8.2 Reward points to be calculated after the submission. This can be done by outboxing Rewards Service. Add below code for after Header Update statement
 
@@ -211,7 +212,9 @@ Follow the steps below to clone the repository in SAP BAS:
                 const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
 
                 // Store the reward service event/message to be emitted after the transaction with the required data
-                await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });```
+                await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
+                
+                ```
  
 9. Configure the destination in BTP
     9.1 Download `rewards-api` from the root folder and import it to the BTP Destination and configure client-secret as  
