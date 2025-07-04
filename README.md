@@ -77,13 +77,15 @@ Follow the steps below to clone the repository in SAP BAS:
 
     7.1. Create a new folder named `inventory` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Inventory destination.
 
-      > Create a file named `index.cds` in the `srv/inventory` folder with the following content:
+      a. Create a file named `index.cds` in the `srv/inventory` folder with the following content:
 
         ```cds
+
             service InventoryService {}
+
         ```
 
-        > Create a file named `index.js` in the same folder with the following content:
+      b. Create a file named `index.js` in the same folder with the following content:
 
         ```javascript
         const cds = require("@sap/cds");
@@ -117,7 +119,7 @@ Follow the steps below to clone the repository in SAP BAS:
         }
         ```
 
-        > Configure the Inventory service to be queued, and define the Inventory REST API destination under cds.requires in `package.json` to enable calls to the Inventory REST API
+        c. Configure the Inventory service to be queued, and define the Inventory REST API destination under cds.requires in `package.json` to enable calls to the Inventory REST API
 
             ```json
                 "InventoryService": {
@@ -136,13 +138,13 @@ Follow the steps below to clone the repository in SAP BAS:
 
     7.2. Create a new folder named `rewards` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Rewards destination.
 
-> Create a file named `index.cds` in the `srv/rewards` folder with the following content:
+        a. Create a file named `index.cds` in the `srv/rewards` folder with the following content:
 
         ```cds
             service RewardService {}
         ```
 
-> Create a file named `index.js` in the same folder with the following content:
+        b. Create a file named `index.js` in the same folder with the following content:
 
         ```javascript
         const cds = require("@sap/cds");
@@ -174,8 +176,9 @@ Follow the steps below to clone the repository in SAP BAS:
                 }
             })
         } 
-        ``` 
-> Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
+        ```
+         
+        c. Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
 
         ```json
           "RewardService": {
