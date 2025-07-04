@@ -83,7 +83,7 @@ Follow the steps below to clone the repository in SAP BAS:
             service InventoryService {}
         ```
 
-        7.1.2. Create a file named `index.js` in the same folder with the following content:
+        > Create a file named `index.js` in the same folder with the following content:
 
         ```javascript
         const cds = require("@sap/cds");
@@ -136,13 +136,13 @@ Follow the steps below to clone the repository in SAP BAS:
 
     7.2. Create a new folder named `rewards` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Rewards destination.
 
-        7.2.1. Create a file named `index.cds` in the `srv/rewards` folder with the following content:
+        > Create a file named `index.cds` in the `srv/rewards` folder with the following content:
 
         ```cds
             service RewardService {}
         ```
 
-        7.2.2. Create a file named `index.js` in the same folder with the following content:
+        > Create a file named `index.js` in the same folder with the following content:
 
         ```javascript
         const cds = require("@sap/cds");
@@ -175,7 +175,7 @@ Follow the steps below to clone the repository in SAP BAS:
             })
         } ``` 
 
-        7.2.3 Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
+        > Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
 
         ```json
           "RewardService": {
@@ -213,8 +213,10 @@ Follow the steps below to clone the repository in SAP BAS:
                 // Store the reward service event/message to be emitted after the transaction with the required data
                 await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });```
  
-    
-9. Deploy app to BTP
+9. Configure the destination in BTP
+    9.1 Download `rewards-api` from the root folder and import it to the BTP Destination and configure client-secret as  
+    9.1 Download `inventory-api` from the root folder and import it to the BTP Destination and configure client-secret as  
+10. Deploy app to BTP
 
     ```bash
         npm i
@@ -223,9 +225,9 @@ Follow the steps below to clone the repository in SAP BAS:
         cf deploy
     ```
 
-10. Configure SAP Build Workspace  
+11. Configure SAP Build Workspace  
 
-    10.1. Create instance for SAP Build Work Zone, standard edition.
+    11.1. Create instance for SAP Build Work Zone, standard edition.
 
     - In the subaccount navigate to Instances and Subscriptions, click on Create button
 
@@ -250,17 +252,17 @@ Follow the steps below to clone the repository in SAP BAS:
     - Navigate to Role called `Everyone`, click on edit and enable  `Manage Sales Order` app 
     - Now click on the sales order site URL. you should be able to see the sales order application
 
-11. Now you should be able to test the application from the new site
+12. Now you should be able to test the application from the new site
         
-12. Add **Notification configuration** to the project:
+13. Add **Notification configuration** to the project:
 
-    12.1. In the terminal, run the following command to add the notifications module to your CAP project:
+    13.1. In the terminal, run the following command to add the notifications module to your CAP project:
            
     ```bash
     cds add notifications            
     ```
 
-    12.2. This command will automatically:
+    13.2. This command will automatically:
 
     - Add necessary dependencies "@cap-js/notifications" (if missing).
     - Add the following module definition (typically in `mta.yaml`) to enable notification content deployment during deployment time:
@@ -284,7 +286,7 @@ Follow the steps below to clone the repository in SAP BAS:
                 - name: salesorder-connectivity
                 - name: salesorder-db```
 
-13. Create a file called `notification-types.json` under `/srv` to define Notification types 
+14. Create a file called `notification-types.json` under `/srv` to define Notification types 
 
     ```json
     [
@@ -319,7 +321,7 @@ Follow the steps below to clone the repository in SAP BAS:
     ]
     
     ```
-14. Now refer this file in `package.json` under `cds.requires`
+15. Now refer this file in `package.json` under `cds.requires`
 
     ```json
     "cds": {
@@ -330,7 +332,7 @@ Follow the steps below to clone the repository in SAP BAS:
 
     ```
 
-15. Now these notifications are ready to be used. We have integrated an external service for rewards calculation. We can add a fiori notification after the rewards calculated.
+16. Now these notifications are ready to be used. We have integrated an external service for rewards calculation. We can add a fiori notification after the rewards calculated.
     Create a new file under /lib/rewards-notification.js and paste below code
 
     ```javascript
@@ -403,7 +405,7 @@ Follow the steps below to clone the repository in SAP BAS:
     ```
         
 
-16. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. 
+17. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. 
 
     ```javascript
     
@@ -438,12 +440,12 @@ Follow the steps below to clone the repository in SAP BAS:
           } 
       ```
   
-17. Similarly enable notification on inventory service (Optional try it yourself)
-18. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
+18. Similarly enable notification on inventory service (Optional try it yourself)
+19. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
     After the step mentioned in the link the following will be achieved
 
       18.1 A new role will be created for Notification admin
       18.2 Enable Notifications in the SAP Build Workspace
       18.3 Create a destination called SAP_Notifications
 
-19. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP. Now create a new order and place the order. After the order is placed users should receive a notification.
+20. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP. Now create a new order and place the order. After the order is placed users should receive a notification.

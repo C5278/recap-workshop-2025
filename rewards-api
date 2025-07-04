@@ -1,0 +1,14 @@
+#clientSecret=<< Existing password/certificate removed on export >>
+#
+#Sun Jun 22 18:11:38 UTC 2025
+tokenServiceURLType=Dedicated
+Description=Rewards
+clientId=sb-customer-rewards-5776ccf5trial-dev\!t456861
+WebIDEEnabled=true
+tokenServiceURL=https\://5776ccf5trial.authentication.us10.hana.ondemand.com/oauth/token
+URL=https\://5776ccf5trial-dev-customer-rewards-srv.cfapps.us10-001.hana.ondemand.com/
+Name=rewards-api
+Type=HTTP
+HTML5.DynamicDestination=true
+Authentication=OAuth2ClientCredentials
+ProxyType=Internet
