@@ -1,0 +1,14 @@
+#clientSecret=<< Existing password/certificate removed on export >>
+#
+#Sun Jun 22 18:11:28 UTC 2025
+tokenServiceURLType=Dedicated
+Description=Inventory
+clientId=sb-inventory-srv-5776ccf5trial-dev\!t456861
+WebIDEEnabled=true
+tokenServiceURL=https\://5776ccf5trial.authentication.us10.hana.ondemand.com/oauth/token
+URL=https\://5776ccf5trial-dev-inventory-srv-srv.cfapps.us10-001.hana.ondemand.com/
+Name=inventory-api
+Type=HTTP
+HTML5.DynamicDestination=true
+Authentication=OAuth2ClientCredentials
+ProxyType=Internet
