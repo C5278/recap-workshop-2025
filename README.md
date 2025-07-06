@@ -58,7 +58,7 @@ Follow the steps below to clone the repository in SAP BAS:
                 console.log('user id', req.user.id);
 
                 const { totalAmount } = await SELECT.one.from(Items)
-                    .columns("sum(Price) as totalAmount")
+                    .columns("sum(Price * Quantity) as totalAmount")
                     .where({ OrderNumber: orderData.OrderNumber })
 
                 const itemData = await SELECT.one.from(Items).where({ Header_ID: req.params[0].ID });
@@ -221,7 +221,7 @@ Follow the steps below to clone the repository in SAP BAS:
     ```javascript 
 
         // Store the reward service event/message to be emitted after the transaction with the required data
-        await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
+        await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: req.user.id, purchaseAmount: totalAmount } });
     
     ```
  
@@ -251,11 +251,12 @@ Follow the steps below to clone the repository in SAP BAS:
                  [
                   If you get the below error then follow step  below
                       `To subscribe this application link an Identity Authentication tenant to the subaccount with the "Establish Trust" option. `
-                          1. Go to Trust Configuration and click on Enable Trust
-                          2. Select '.trial-accounts.ondemand.com' and enable the IAS tenant
-                          3. Click on `Administration Console` and click on forgot to password, to set password for user.
-                          4. Go to `Role Collections` and provide `Launchpad_Admin` role to the user.
-                          5. Now you are ready to create `SAP Build Work Zone` instance, go to step 12.1
+                          1. Create an instance of `Cloud Identity Services` by selecting Plan as `Subscriptions:default`
+                          2. Go to Trust Configuration and click on `Enable Trust`
+                          3. Select '.trial-accounts.ondemand.com' and enable the IAS tenant
+                          4. Click on `Administration Console` and click on forgot to password, to set password for user.
+                          5. Go to `Role Collections` and provide `Launchpad_Admin` role to the user.
+                          6. Now you are ready to create `SAP Build Work Zone` instance, go to step 12.1
                  ]
                  
     - Click on SAP Build Work Zone instance and go to the application
@@ -420,7 +421,7 @@ Follow the steps below to clone the repository in SAP BAS:
     ```
         
 
-18. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. 
+18. Now lets say, we need to have the notification to be send to the user after calculating the rewards points. update the `rewards/index.js` file as given below.
 
     ```javascript
     
