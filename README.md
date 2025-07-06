@@ -79,72 +79,71 @@ Follow the steps below to clone the repository in SAP BAS:
 
       a. Create a file named `index.cds` in the `srv/inventory` folder with the following content:
 
-        ```cds
+    ```cds
 
-            service InventoryService {}
+        service InventoryService {}
 
-        ```
+    ```
 
       b. Create a file named `index.js` in the same folder with the following content:
 
-        ```javascript
-        const cds = require("@sap/cds");
+    ```javascript
+    const cds = require("@sap/cds");
 
-        // Import the inventory notification utility
-        // const notification = require('../lib/notification')
+    // Import the inventory notification utility
+    // const notification = require('../lib/notification')
 
-        module.exports = (srv) => {
+    module.exports = (srv) => {
 
-            // Define an event handler for the 'updateStock' action  
-            srv.on("updateStock", async (req) => {
-                try {
-                    // Connect to the external Inventory service (destination: 'inventory-api')
-                    const inventory = await cds.connect.to("inventory-api");
+        // Define an event handler for the 'updateStock' action  
+        srv.on("updateStock", async (req) => {
+            try {
+                // Connect to the external Inventory service (destination: 'inventory-api')
+                const inventory = await cds.connect.to("inventory-api");
 
-                    // Send a POST request to the external Inventory REST API
-                    const response = await inventory.send({
-                        method: 'POST',
-                        path: "odata/v4/inventory/updateStock",
-                        headers: { 'Content-Type': 'application/json' },
-                        data: req.data.payload
-                    })
+                // Send a POST request to the external Inventory REST API
+                const response = await inventory.send({
+                    method: 'POST',
+                    path: "odata/v4/inventory/updateStock",
+                    headers: { 'Content-Type': 'application/json' },
+                    data: req.data.payload
+                })
 
-                    // Trigger a notification after successfully calling the inventory service
-                    // await notification.sendNotification("inventory", req.data.orderNumber, req.data.userID)
-                } catch (e) {
-                    // Rethrow the error so queue can retry
-                    throw e;
-                }
-            })
+                // Trigger a notification after successfully calling the inventory service
+                // await notification.sendNotification("inventory", req.data.orderNumber, req.data.userID)
+            } catch (e) {
+                // Rethrow the error so queue can retry
+                throw e;
+            }
+        })
+    }
+    ```
+
+    c. Configure the Inventory service to be queued, and define the Inventory REST API destination under cds.requires in `package.json` to enable calls to the Inventory REST API
+
+    ```json
+        "InventoryService": {
+          "kind": "odata",
+          "model": "srv/inventory/index",
+          "impl": "srv/inventory/index"
+        },
+        "inventory-api": {
+          "kind": "odata",
+          "credentials": {
+            "destination": "inventory-api"
+          }
         }
-        ```
-
-        c. Configure the Inventory service to be queued, and define the Inventory REST API destination under cds.requires in `package.json` to enable calls to the Inventory REST API
-
-            ```json
-                "InventoryService": {
-                  "kind": "odata",
-                  "model": "srv/inventory/index",
-                  "impl": "srv/inventory/index"
-                },
-                "inventory-api": {
-                  "kind": "odata",
-                  "credentials": {
-                    "destination": "inventory-api"
-                  }
-                }
-            ```  
-
+    ```  
 
     7.2. Create a new folder named `rewards` under the `srv` directory. This folder will contain the service definition and handler files needed to call the Rewards destination.
 
-        a. Create a file named `index.cds` in the `srv/rewards` folder with the following content:
+    1. Create a file named `index.cds` in the `srv/rewards` folder with the following content:
 
         ```cds
             service RewardService {}
         ```
 
-        b. Create a file named `index.js` in the same folder with the following content:
+    2. Create a file named `index.js` in the same folder with the following content:
 
         ```javascript
         const cds = require("@sap/cds");
@@ -178,7 +177,7 @@ Follow the steps below to clone the repository in SAP BAS:
         } 
         ```
          
-        c. Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
+    3. Configure the Rewards service to be queued, and define the Rewards REST API destination under cds.requires in `package.json` to enable calls to the Rewards REST API
 
         ```json
           "RewardService": {
@@ -198,30 +197,30 @@ Follow the steps below to clone the repository in SAP BAS:
 
     8.1 Inventory needs to be updated after the order is submitted. This can be done by outboxing Inventory Service. Add below code for after Header Update statement
 
-            ```javascript
+    ```javascript
 
-                // Get the queued Inventory service
-                const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
+        // Get the queued Inventory service
+        const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
 
-                // Store the inventory service event/message to be emitted after the transaction with the required data
-                await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });
-            ```
+        // Store the inventory service event/message to be emitted after the transaction with the required data
+        await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });
+    ```
 
     8.2 Reward points to be calculated after the submission. This can be done by outboxing Rewards Service. Add below code for after Header Update statement
 
-                ```javascript
+    ```javascript
 
-                // Get the queued Reward service
-                const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
+    // Get the queued Reward service
+    const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
 
-                // Store the reward service event/message to be emitted after the transaction with the required data
-                await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
-                
-                ```
+    // Store the reward service event/message to be emitted after the transaction with the required data
+    await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
+    
+    ```
  
 9. Configure the destination in BTP
-    9.1 Download `rewards-api` from the root folder and import it to the BTP Destination and configure client-secret as  
-    9.1 Download `inventory-api` from the root folder and import it to the BTP Destination and configure client-secret as  
+    9.1 Download `rewards-api` from the root folder and import it to the BTP Destination and configure client-secret as  6060b733-0a5f-4e80-a3fe-be71d5f68d90$5f3tCbMq0P3ytLCYCjC-Y37nUVzNmfrXH4k2avKmESg=
+    9.1 Download `inventory-api` from the root folder and import it to the BTP Destination and configure client-secret as  5ee16b59-e586-4703-acef-a99a6385f0f3$2f9bpM2-eMy9DYFY5XVO7OskW9RsYgM8aR_vXKHmRfU=
 10. Deploy app to BTP
 
     ```bash
@@ -243,12 +242,13 @@ Follow the steps below to clone the repository in SAP BAS:
                  [
                   If you get the below error then follow step  below
                       `To subscribe this application link an Identity Authentication tenant to the subaccount with the "Establish Trust" option. `
-                  1. Go to Trust COnfiguration and click on Enable Trust
-                  2. Select '.trial-accounts.ondemand.com' and enable the IAS tenant
-                  3. Click on `Administration Console` and click on forgot to password, to set password for user.
-                  4. Go to `Role Collections` and provide `Launchpad_Admin` role to the user.
-                  5. Now you are ready to create `SAP Build Work Zone` instance, go to step 12.1
+                          1. Go to Trust Configuration and click on Enable Trust
+                          2. Select '.trial-accounts.ondemand.com' and enable the IAS tenant
+                          3. Click on `Administration Console` and click on forgot to password, to set password for user.
+                          4. Go to `Role Collections` and provide `Launchpad_Admin` role to the user.
+                          5. Now you are ready to create `SAP Build Work Zone` instance, go to step 12.1
                  ]
+                 
     - Click on SAP Build Work Zone instance and go to the application
     - After login in to the Application, Click on `Create Site` with name 'Sales Order'
     - Now Navigate to Content Manager > Content Explorer > HTML5 Apps 
@@ -381,7 +381,7 @@ Follow the steps below to clone the repository in SAP BAS:
                               Key: 'NewReward',
                               IsSensitive: false,
                               Language: 'en',
-                              Value: newReward,
+                              Value: newReward.toString(),
                               Type: 'String'
                           }
                       ],
@@ -450,8 +450,8 @@ Follow the steps below to clone the repository in SAP BAS:
 19. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
     After the step mentioned in the link the following will be achieved
 
-      18.1 A new role will be created for Notification admin
-      18.2 Enable Notifications in the SAP Build Workspace
-      18.3 Create a destination called SAP_Notifications
+      19.1 A new role will be created for Notification admin
+      19.2 Enable Notifications in the SAP Build Workspace
+      19.3 Create a destination called SAP_Notifications
 
 20. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP. Now create a new order and place the order. After the order is placed users should receive a notification.
