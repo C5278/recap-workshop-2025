@@ -221,6 +221,7 @@ Follow the steps below to clone the repository in SAP BAS:
 9. Configure the destination in BTP
 
       9.1 Download `rewards-api` from the root folder and import it to the BTP Destination and configure client-secret as  6060b733-0a5f-4e80-a3fe-be71d5f68d90$5f3tCbMq0P3ytLCYCjC-Y37nUVzNmfrXH4k2avKmESg=
+   
       9.2 Download `inventory-api` from the root folder and import it to the BTP Destination and configure client-secret as  5ee16b59-e586-4703-acef-a99a6385f0f3$2f9bpM2-eMy9DYFY5XVO7OskW9RsYgM8aR_vXKHmRfU=
 11. Deploy app to BTP
 
