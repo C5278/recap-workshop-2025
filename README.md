@@ -195,26 +195,33 @@ Follow the steps below to clone the repository in SAP BAS:
 
 8. Now lets outbox these services from order processing service, 
 
-    8.1 Inventory needs to be updated after the order is submitted. This can be done by outboxing Inventory Service. Add below code for after Header Update statement
+    8.1 Get the queued inventory service during service initialization as follows. This should be placed at the beginning of the async function inside module.exports of your service implementation
 
     ```javascript
-
         // Get the queued Inventory service
         const qd_inventoryService = cds.queued(await cds.connect.to("InventoryService"));
+    ```
+    
+    8.2 Inventory needs to be updated after the order is submitted. Add below code for after Header Update statement
 
+    ```javascript
         // Store the inventory service event/message to be emitted after the transaction with the required data
         await qd_inventoryService.send("updateStock", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { productID: itemData.Product_ID, quantityPurchased: itemData.Quantity } });
     ```
 
-    8.2 Reward points to be calculated after the submission. This can be done by outboxing Rewards Service. Add below code for after Header Update statement
+    8.3 Get the queued reward service during service initialization as follows. This should be placed at the beginning of the async function inside module.exports of your service implementation
 
     ```javascript
+        // Get the queued Reward service
+        const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
+    ```
 
-    // Get the queued Reward service
-    const qd_rewardService = cds.queued(await cds.connect.to("RewardService"));
+    8.4 Reward points to be calculated after the submission. Add below code for after Header Update statement
 
-    // Store the reward service event/message to be emitted after the transaction with the required data
-    await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
+    ```javascript 
+
+        // Store the reward service event/message to be emitted after the transaction with the required data
+        await qd_rewardService.send("updateRewards", { orderNumber: orderData.OrderNumber, userID: req.user.id, payload: { customerID: orderData.Customer_ID, purchaseAmount: totalAmount } });
     
     ```
  
