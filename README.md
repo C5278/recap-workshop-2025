@@ -12,6 +12,8 @@ If you don’t have one, no worries please create one using the link below.
 Before proceeding, ensure you have access to the following SAP BTP services:
 
 - **SAP BTP HANA Cloud**
+   - [Subcribe to HANA Cloud](https://developers.sap.com/tutorials/hana-cloud-mission-trial-2.html)
+   - [Create an Instance](https://developers.sap.com/tutorials/hana-cloud-mission-trial-3.html)   
 - **SAP BTP Work Zone, Standard Edition**
 
 These services must be provisioned and configured in your SAP BTP subaccount.
