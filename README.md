@@ -51,11 +51,14 @@ Follow the steps below to clone the repository in SAP BAS:
    6.1. Open the `srv/order-service.js` file and copy the below handler:
 
    ```javascript
+
+      const LOG = cds.log();
+   
         this.on('submitOrder', async (req) => {
             try {
                 const orderData = await SELECT.one.from(Header).where({ ID: req.params[0].ID });
 
-                console.log('user id', req.user.id);
+                LOG.info('user id', req.user.id);
 
                 const { totalAmount } = await SELECT.one.from(Items)
                     .columns("sum(Price * Quantity) as totalAmount")
@@ -300,7 +303,8 @@ Follow the steps below to clone the repository in SAP BAS:
               requires:
                 - name: salesorder-destination
                 - name: salesorder-connectivity
-                - name: salesorder-db```
+                - name: salesorder-db
+    ```
 
 15. Create a file called `notification-types.json` under `/srv` to define Notification types 
 
@@ -337,6 +341,8 @@ Follow the steps below to clone the repository in SAP BAS:
     ]
     
     ```
+
+    More details about the notification type can be found [here] (https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/developing-cloud-foundry-applications-with-notifications)
 16. Now refer this file in `package.json` under `cds.requires`
 
     ```json
@@ -353,6 +359,7 @@ Follow the steps below to clone the repository in SAP BAS:
 
     ```javascript
 
+       const LOG = cds.log()
           /**
            * Sends a notification to a user about a new reward for an order.
           * @param {string} key - Notification type key.
@@ -362,7 +369,7 @@ Follow the steps below to clone the repository in SAP BAS:
           */
           const sendNotification = async (key, orderNumber, newReward, userId) => {
               try {
-                  console.log(`[sendNotification] Preparing to send notification.`, {
+                  LOG.info(`[sendNotification] Preparing to send notification.`, {
                       key,
                       orderNumber,
                       newReward,
@@ -371,7 +378,7 @@ Follow the steps below to clone the repository in SAP BAS:
 
                   // Connect to the notifications service
                   const alert = await cds.connect.to('notifications');
-                  console.log(`[sendNotification] Connected to notifications service.`);
+                  LOG.info(`[sendNotification] Connected to notifications service.`);
 
                   // Prepare notification payload
                   const notificationPayload = {
@@ -405,14 +412,14 @@ Follow the steps below to clone the repository in SAP BAS:
                       ]
                   };
 
-                  console.log(`[sendNotification] Notification payload:`, notificationPayload);
+                  LOG.info(`[sendNotification] Notification payload:`, notificationPayload);
 
                   // Send the notification
                   await alert.notify(notificationPayload);
 
-                  console.log(`[sendNotification] Notification sent successfully to userId: ${userId}`);
+                  LOG.info(`[sendNotification] Notification sent successfully to userId: ${userId}`);
               } catch (e) {
-                  console.log('[sendNotification] Error at notification:', e.message);
+                  LOG.info('[sendNotification] Error at notification:', e.message);
               }
           }
 
@@ -460,8 +467,15 @@ Follow the steps below to clone the repository in SAP BAS:
 20. To receive these notification on the SAP Build Workspace, we need to enable SAP_Notifications Destination as described in the [here](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service)
     After the step mentioned in the link the following will be achieved
 
-      19.1 A new role will be created for Notification admin
-      19.2 Enable Notifications in the SAP Build Workspace
-      19.3 Create a destination called SAP_Notifications
+      19.1 [Step 1](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#prerequisites) A new role collection will be created for `Notification admin` with role `Business_Notifications_Admin` and assign it to your user.
+      19.2 [Step2](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#overview) Enable Notifications in the SAP Build Workspace
+      19.3 [Step 3](https://help.sap.com/docs/build-work-zone-standard-edition/sap-build-work-zone-standard-edition/enabling-notifications-for-custom-apps-on-sap-btp-cloud-foundry#configure-the-destination-to-the-notifications-service) Create a destination called SAP_Notifications
 
 21. Build and deploy the CAP project. Once deployed, your CAP application, including notification setup and service integrations, will be live on SAP BTP. Now create a new order and place the order. After the order is placed users should receive a notification.
+
+    ```bash
+        npm i
+        mbt build
+        cf login
+        cf deploy
+    ```
