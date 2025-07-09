@@ -18,8 +18,6 @@ modules:
     parameters:
       buildpack: nodejs_buildpack
       instances: 1
-    build-parameters:
-      builder: npm-ci
   - name: salesorder-db-deployer
     type: hdb
     path: gen/db
@@ -161,5 +159,4 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm ci
         - npx cds build --production
